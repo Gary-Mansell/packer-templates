@@ -1,0 +1,63 @@
+{
+	"variables": {
+		"name": "alpine-3.6.2",
+		"iso_url": "http://dl-cdn.alpinelinux.org/alpine/v3.6/releases/x86_64/alpine-standard-3.6.2-x86_64.iso",
+		"iso_checksum": "ddf8b91cc0d2b1c110f26607d410e5c951eedff9c60d6eb05d220b87c1970840",
+		"disk_size": "16000",
+
+		"user": "alpine",
+		"password": "alpine",
+		"ssh_password": "alpine",
+		"ssh_wait_timeout": "5m",
+
+		"network_switch": "External-Network"
+	},
+
+    "builders": [{
+            "name": "{{ user `name` }}_hyperv",
+			"vm_name": "{{ user `name` }}_hyperv",
+			"output_directory": "output-{{ user `name` }}_hyperv",
+
+            "type": "hyperv-iso",
+            "generation": 1,
+			"iso_url": "{{ user `iso_url` }}",
+            "iso_checksum": "{{ user `iso_checksum` }}",
+            "iso_checksum_type": "sha256",
+            "disk_size": "{{ user `disk_size` }}",
+			"switch_name": "{{ user `network_switch` }}",
+            "http_directory": "http/alpine",
+
+            "ssh_username": "{{ user `user` }}",
+            "ssh_password": "{{ user `password` }}",
+            "ssh_timeout": "60m",
+
+            "boot_wait": "5s",
+			"boot_command": [
+				"root<enter><wait>",				
+				"cat << EOF >> /etc/network/interfaces<enter>",
+				"iface lo inet loopback<enter>",
+				"<enter>",
+				"auto eth0<enter>",
+				"iface eth0 inet dhcp<enter>",
+				"  hostname packer-alpine<enter>",
+				"EOF<enter>",
+				"service networking start<enter><wait5>",
+				"wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/answerfile.cfg<enter><wait10>",
+				"setup-alpine -f answerfile.cfg<enter><wait10>",
+				"alpine<enter><wait>",
+				"alpine<enter><wait10>",
+				"y<enter>",
+				"<wait10><wait10><wait10>",
+				"/etc/init.d/sshd stop<enter><wait>",
+				"eject -r<enter>",
+				"reboot<enter>"
+			],
+			"shutdown_command": "poweroff"
+	}],
+
+	"provisioners": [{
+		"type": "shell",
+		"execute_command": "/bin/sh -x '{{.Path}}'",
+		"script": "scripts/alpine/update.sh"
+	}]
+}

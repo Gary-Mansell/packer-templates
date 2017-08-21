@@ -25,7 +25,7 @@
             "iso_checksum_type": "sha256",
             "disk_size": "{{ user `disk_size` }}",
 			"switch_name": "{{ user `network_switch` }}",
-			
+
             "http_directory": "http/alpine",
 
             "ssh_username": "{{ user `user` }}",
@@ -34,7 +34,7 @@
 
             "boot_wait": "5s",
 			"boot_command": [
-				"root<enter><wait>",				
+				"root<enter><wait>",
 				"cat << EOF >> /etc/network/interfaces<enter>",
 				"iface lo inet loopback<enter>",
 				"<enter>",

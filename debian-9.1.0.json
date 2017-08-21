@@ -1,0 +1,63 @@
+{
+    "variables": {
+        "name": "debian-9.1.0",
+        "iso_url": "https://cdimage.debian.org/debian-cd/9.1.0/amd64/iso-cd/debian-9.1.0-amd64-netinst.iso",
+        "iso_checksum": "ddd8f6542dae8baf410e90b9ae0fe986",
+		"disk_size": "16000",
+
+        "user": "debian",
+        "password": "debian",
+		"ssh_password": "debian",
+		"ssh_wait_timeout": "5m",
+
+		"network_switch": "External-Network"
+    },
+
+    "builders": [{
+            "name": "{{ user `name` }}_hyperv",
+			"vm_name": "{{ user `name` }}_hyperv",
+			"output_directory": "output-{{ user `name` }}_hyperv",
+
+            "type": "hyperv-iso",
+            "generation": 2,
+			"enable_secure_boot": false,
+			"iso_url": "{{ user `iso_url` }}",
+            "iso_checksum": "{{ user `iso_checksum` }}",
+            "iso_checksum_type": "md5",
+            "disk_size": "{{ user `disk_size`}}",
+			"switch_name": "{{ user `network_switch` }}",
+
+            "http_directory": "http/debian",
+
+            "ssh_username": "{{ user `user` }}",
+            "ssh_password": "{{ user `password` }}",
+            "ssh_timeout": "{{ user `ssh_wait_timeout` }}",
+
+            "boot_wait": "5s",
+            "boot_command": [
+                "<down>e <down><down><down><end>",
+                "auto=true ",
+                "priority=critical ",
+                "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/debian/preseed.cfg ",
+                "interface=auto ",
+                "debconf/frontend=noninteractive ",
+                "debian-installer=en_GB ",
+                "<f10><wait> "
+            ],
+            "shutdown_command": "echo '{{ user `password` }}' | sudo -S systemctl poweroff"
+	}],
+
+    "provisioners": [{
+		"type": "shell",
+		"start_retry_timeout": "10m",
+		"execute_command": "echo '{{ user `password` }}' | {{ .Vars }} sudo -E -S sh -e '{{ .Path }}'",
+		"scripts": [
+			"scripts/debian/upgrade.sh"
+		]
+	}],
+
+    "post-processors": [{
+		"type": "vagrant",
+		"keep_input_artifact": true
+	}]
+}

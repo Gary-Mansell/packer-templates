@@ -25,11 +25,12 @@
             "iso_checksum_type": "sha256",
             "disk_size": "{{ user `disk_size` }}",
 			"switch_name": "{{ user `network_switch` }}",
+			
             "http_directory": "http/alpine",
 
             "ssh_username": "{{ user `user` }}",
             "ssh_password": "{{ user `password` }}",
-            "ssh_timeout": "60m",
+            "ssh_timeout": "{{ user `ssh_wait_timeout` }}",
 
             "boot_wait": "5s",
 			"boot_command": [
@@ -39,7 +40,7 @@
 				"<enter>",
 				"auto eth0<enter>",
 				"iface eth0 inet dhcp<enter>",
-				"  hostname packer-alpine<enter>",
+				"  hostname {{ user `name` }}<enter>",
 				"EOF<enter>",
 				"service networking start<enter><wait5>",
 				"wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/answerfile.cfg<enter><wait10>",

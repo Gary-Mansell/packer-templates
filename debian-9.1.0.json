@@ -27,7 +27,7 @@
             "disk_size": "{{ user `disk_size`}}",
 			"switch_name": "{{ user `network_switch` }}",
 
-            "http_directory": "http/debian",
+            "http_directory": "http",
 
             "ssh_username": "{{ user `user` }}",
             "ssh_password": "{{ user `password` }}",
